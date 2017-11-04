@@ -18,7 +18,8 @@ Meteor.methods({
 		}, {
 			fields: {
 				_id: 1,
-				roles: 1
+				// roles: 1 [IAN] 11/3/2017 coexist with OH roles
+				messagingRoles: 1
 			}
 		});
 
@@ -31,12 +32,14 @@ Meteor.methods({
 		// prevent removing last user from admin role
 		if (roleName === 'admin') {
 			const adminCount = Meteor.users.find({
-				roles: {
+				// roles: { [IAN] 11/3/2017 coexist with OH roles
+				messagingRoles: {
 					$in: ['admin']
 				}
 			}).count();
 
-			const userIsAdmin = user.roles.indexOf('admin') > -1;
+			// const userIsAdmin = user.roles.indexOf('admin') > -1; [IAN] 11/3/2017 coexist with OH roles
+			const userIsAdmin = user.messagingRoles.indexOf('admin') > -1;
 			if (adminCount === 1 && userIsAdmin) {
 				throw new Meteor.Error('error-action-not-allowed', 'Leaving the app without admins is not allowed', {
 					method: 'removeUserFromRole',

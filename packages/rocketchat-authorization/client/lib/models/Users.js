@@ -6,7 +6,8 @@ Object.assign(RocketChat.models.Users, {
 	isUserInRole(userId, roleName) {
 		const query = {
 			_id: userId,
-			roles: roleName
+			// roles: roleName [IAN] 11/3/2017 coexist with OH roles
+			messagingRoles: roleName
 		};
 
 		return !_.isUndefined(this.findOne(query));
@@ -16,7 +17,8 @@ Object.assign(RocketChat.models.Users, {
 		roles = [].concat(roles);
 
 		const query = {
-			roles: { $in: roles }
+			// roles: { $in: roles } [IAN] 11/3/2017 coexist with OH roles
+			messagingRoles: { $in: roles }
 		};
 
 		return this.find(query, options);

@@ -128,7 +128,8 @@ Accounts.insertUserDoc = _.wrap(Accounts.insertUserDoc, function(insertUserDoc, 
 
 	if (roles.length === 0) {
 		const hasAdmin = RocketChat.models.Users.findOne({
-			roles: 'admin',
+			// roles: 'admin', [IAN] 11/3/2017 coexist with OH roles
+			messagingRoles: 'admin',
 			type: 'user'
 		}, {
 			fields: {
@@ -165,7 +166,8 @@ Accounts.validateLoginAttempt(function(login) {
 		});
 	}
 
-	if (login.user.roles.includes('admin') === false && login.type === 'password' && RocketChat.settings.get('Accounts_EmailVerification') === true) {
+	// if (login.user.roles.includes('admin') === false && login.type === 'password' && RocketChat.settings.get('Accounts_EmailVerification') === true) { [IAN] 11/3/2017 coexist with OH roles
+	if (login.user.messagingRoles.includes('admin') === false && login.type === 'password' && RocketChat.settings.get('Accounts_EmailVerification') === true) {
 		const validEmail = login.user.emails.filter(email => email.verified === true);
 		if (validEmail.length === 0) {
 			throw new Meteor.Error('error-invalid-email', 'Invalid email __email__');
