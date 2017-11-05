@@ -1,6 +1,14 @@
 import {AccountsClient} from "./accounts_client.js";
 var Ap = AccountsClient.prototype;
 
+// [IAN] 11/3/2017 disable resuming login from
+// localStorage automatically on page load
+// since RC is supposed to be embedded in OH apps
+// and take the login token from the wrapper app.
+// This prevents issues when you close the containing
+// app after signing out but don't sign out RC.
+Ap._autoLoginEnabled = false;
+
 // This file deals with storing a login token and user id in the
 // browser's localStorage facility. It polls local storage every few
 // seconds to synchronize login state between multiple tabs in the same
@@ -24,7 +32,8 @@ Ap.loginWithToken = function (token, callback) {
 // Semi-internal API. Call this function to re-enable auto login after
 // if it was disabled at startup.
 Ap._enableAutoLogin = function () {
-  this._autoLoginEnabled = true;
+  // [IAN] 11/3/2017 disable resuming login from
+  // this._autoLoginEnabled = true;
   this._pollStoredLoginToken();
 };
 

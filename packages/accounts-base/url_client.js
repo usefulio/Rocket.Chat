@@ -9,7 +9,8 @@ var savedHash = window.location.hash;
 
 Ap._initUrlMatching = function () {
   // By default, allow the autologin process to happen.
-  this._autoLoginEnabled = true;
+  // [IAN] 11/3/2017 disable resuming login
+  // this._autoLoginEnabled = true;
 
   // We only support one callback per URL.
   this._accountsCallbacks = {};
