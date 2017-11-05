@@ -149,3 +149,56 @@ FlowRouter.route('/register/:hash', {
 		// 	BlazeLayout.render 'logoLayout', { render: 'invalidSecretURL' }
 	}
 });
+
+
+FlowRouter.route('/sso/:token', {
+	name: 'sso',
+	action: function (params) {
+		BlazeLayout.render('SSO');
+
+		console.log("sso route");
+		const token = decodeURIComponent(params.token);
+		console.log(params);
+
+		Meteor.loginWithToken(token, function (error, result) {
+			console.log('login with token');
+			console.log(error, result);
+			if (error) {
+				alert("Messenger Single Sign On Failed");
+				alert(JSON.stringify(error, null, 2));
+				console.error(error);
+			}else {
+				Session.set('forceLogin', false);
+				Session.set('isEmbedded', true);
+				FlowRouter.go('home');
+			}
+		});
+	}
+});
+
+FlowRouter.route('/mobile/sso/:token', {
+	name: 'mobileSso',
+	action(params) {
+		BlazeLayout.render('SSO');
+
+		console.log("mobile sso route");
+		const token = decodeURIComponent(params.token);
+		console.log(params);
+
+		Meteor.loginWithToken(params.token, (err, result) => {
+			console.log('login with token');
+			console.log(error, result);
+			if (err) {
+				alert("Messenger Single Sign On Failed");
+				alert(JSON.stringify(error, null, 2));
+				console.error(error);
+			}
+			else {
+				Session.set('forceLogin', false);
+				Session.set('isEmbedded', true);
+				Session.set('isMobile', true);
+				FlowRouter.go('home');
+			}
+		});
+	}
+});
