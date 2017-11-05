@@ -16,9 +16,14 @@ Meteor.startup(function() {
 		{ _id: 'ban-user',                      roles : ['admin', 'owner', 'moderator'] },
 		{ _id: 'bulk-create-c',                 roles : ['admin'] },
 		{ _id: 'bulk-register-user',            roles : ['admin'] },
-		{ _id: 'create-c',                      roles : ['admin', 'user', 'bot'] },
-		{ _id: 'create-d',                      roles : ['admin', 'user', 'bot'] },
-		{ _id: 'create-p',                      roles : ['admin', 'user', 'bot'] },
+		// [IAN] 11/3/2017 only admins can create public channels
+		// { _id: 'create-c',                      roles : ['admin', 'user', 'bot'] },
+		{ _id: 'create-c',                      roles : ['admin'] },
+		// [IAN] 11/3/2017 patients, care managers and providers can create 1:1 direct message rooms
+		{ _id: 'create-d',                      roles : ['admin', 'user', 'bot', 'patient', 'careManager', 'provider'] },
+		// [IAN] 11/3/2017 only admins can create private groups
+		// { _id: 'create-p',                      roles : ['admin', 'user', 'bot'] },
+		{ _id: 'create-p',                      roles : ['admin'] },
 		{ _id: 'create-user',                   roles : ['admin'] },
 		{ _id: 'clean-channel-history',         roles : ['admin'] }, // special permission to bulk delete a channel's mesages
 		{ _id: 'delete-c',                      roles : ['admin'] },
@@ -49,28 +54,35 @@ Meteor.startup(function() {
 		{ _id: 'send-many-messages',            roles : ['admin', 'bot'] },
 		{ _id: 'set-leader',                    roles : ['admin', 'owner'] },
 		{ _id: 'unarchive-room',                roles : ['admin'] },
-		{ _id: 'view-c-room',                   roles : ['admin', 'user', 'bot', 'anonymous'] },
+		// [IAN] 11/3/2017 only admins can see public channels
+		// { _id: 'view-c-room',                   roles : ['admin', 'user', 'bot', 'anonymous'] },
+		{ _id: 'view-c-room',                   roles : ['admin'] },
 		{ _id: 'user-generate-access-token',    roles : ['admin'] },
-		{ _id: 'view-d-room',                   roles : ['admin', 'user', 'bot'] },
+		{ _id: 'view-d-room',                   roles : ['admin', 'user', 'bot', 'patient', 'careManager', 'provider'] },
 		{ _id: 'view-full-other-user-info',     roles : ['admin'] },
-		{ _id: 'view-history',                  roles : ['admin', 'user', 'anonymous'] },
+		{ _id: 'view-history',                  roles : ['admin', 'user', 'anonymous', 'patient', 'careManager', 'provider'] },
 		{ _id: 'view-joined-room',              roles : ['guest', 'bot', 'anonymous'] },
 		{ _id: 'view-join-code',                roles : ['admin'] },
 		{ _id: 'view-logs',                     roles : ['admin'] },
 		{ _id: 'view-other-user-channels',      roles : ['admin'] },
-		{ _id: 'view-p-room',                   roles : ['admin', 'user', 'anonymous'] },
+		// [IAN] 11/3/2017 only admins can see private groups
+		// { _id: 'view-p-room',                   roles : ['admin', 'user', 'anonymous'] },
+		{ _id: 'view-p-room',                   roles : ['admin'] },
 		{ _id: 'view-privileged-setting',       roles : ['admin'] },
 		{ _id: 'view-room-administration',      roles : ['admin'] },
 		{ _id: 'view-statistics',               roles : ['admin'] },
 		{ _id: 'view-user-administration',      roles : ['admin'] },
-		{ _id: 'preview-c-room',                roles : ['admin', 'user', 'anonymous'] },
-		{ _id: 'view-outside-room',             roles : ['admin', 'owner', 'moderator', 'user'] }
+		// [IAN] 11/3/2017 only admins can see preview public channels
+		// { _id: 'preview-c-room',                roles : ['admin', 'user', 'anonymous'] },
+		{ _id: 'preview-c-room',                roles : ['admin'] },
+		{ _id: 'view-outside-room',             roles : ['admin', 'owner', 'moderator', 'user', 'patient', 'careManager', 'provider'] }
 	];
 
 	for (const permission of permissions) {
-		if (!RocketChat.models.Permissions.findOneById(permission._id)) {
+		// [IAN] 11/3/2017 enforce roles/permissions regardless of what's set in the UX
+		// if (!RocketChat.models.Permissions.findOneById(permission._id)) {
 			RocketChat.models.Permissions.upsert(permission._id, {$set: permission });
-		}
+		// }
 	}
 
 	const defaultRoles = [
@@ -81,7 +93,10 @@ Meteor.startup(function() {
 		{ name: 'user',      scope: 'Users',         description: '' },
 		{ name: 'bot',       scope: 'Users',         description: '' },
 		{ name: 'guest',     scope: 'Users',         description: '' },
-		{ name: 'anonymous', scope: 'Users',         description: '' }
+		{ name: 'anonymous', scope: 'Users',         description: '' },
+		{ name: 'patient',   scope: 'Users',         description: 'Patient' },
+		{ name: 'careManager',scope: 'Users',        description: 'Care Manager' },
+		{ name: 'provider',  scope: 'Users',         description: 'Provider' },
 	];
 
 	for (const role of defaultRoles) {

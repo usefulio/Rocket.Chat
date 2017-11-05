@@ -2,7 +2,9 @@ class ModelUsers extends RocketChat.models._Base {
 	constructor() {
 		super(...arguments);
 
-		this.tryEnsureIndex({ 'roles': 1 }, { sparse: 1 });
+		// [IAN] 11/3/2017 coexist with OH roles
+		// this.tryEnsureIndex({ 'roles': 1 }, { sparse: 1 });
+		this.tryEnsureIndex({ 'messagingRoles': 1 }, { sparse: 1 });
 		this.tryEnsureIndex({ 'name': 1 });
 		this.tryEnsureIndex({ 'lastLogin': 1 });
 		this.tryEnsureIndex({ 'status': 1 });
@@ -130,7 +132,21 @@ class ModelUsers extends RocketChat.models._Base {
 		return this.find(query, options);
 	}
 
-	findByActiveUsersExcept(searchTerm, exceptions, options) {
+	// [IAN] 11/3/2017 modify this method to search for users
+	// based on the following rules:
+	/*
+		Patients: Can see Care Managers and Providers in their own organization.
+		Providers: Can see Care Managers, Patients and Providers in their own organization.
+		Care Managers: Can see all Care Managers. Can see Patients and Providers in their organizations.
+	*/
+	findByActiveUsersExcept(userId, searchTerm, exceptions, options) {
+		// get the requesting user from the database, don't use the cache,
+		// and pull the relevant fields to be able to check their access later
+		const requestingUser = this._db.findOne({_id: userId}, { fields: { _id: 1, messagingRoles: 1, profile: 1, roles: 1 } });
+		if(!requestingUser || arguments.length !== 4){
+			throw new Meteor.Error('deprecated', '[OH] You must pass a userId to findByActiveUsersExcept so scoping can be applied.');
+		}
+
 		if (exceptions == null) { exceptions = []; }
 		if (options == null) { options = {}; }
 		if (!_.isArray(exceptions)) {
@@ -154,6 +170,38 @@ class ModelUsers extends RocketChat.models._Base {
 				}
 			]
 		};
+
+		// Adjust the selector to match OH roles
+		if (_.contains(requestingUser.messagingRoles, 'patient')) {
+			// patients can only see care managers and providers for their organization
+			const organizationId = requestingUser.profile.organizationId || '';
+			query.$and.push({
+				$or: [
+					{ 'roles.administrator': organizationId },
+					{ 'roles.doctor': organizationId }
+				]
+			});
+		} else if (_.contains(requestingUser.messagingRoles, 'provider')) {
+			// providers can only see care managers, providers and patients for their organization
+			const organizationIds = requestingUser.roles.doctor || [];
+			query.$and.push({
+				$or: [
+					{ 'roles.administrator': { $in: organizationIds } },
+					{ 'roles.doctor': { $in: organizationIds } },
+					{ 'profile.organizationId': { $in: organizationIds } }
+				]
+			});
+		} else if (_.contains(requestingUser.messagingRoles, 'careManager')) {
+			// care managers can see care managers, and providers and patients for their organizations
+			const organizationIds = requestingUser.roles.administrator || [];
+			query.$and.push({
+				$or: [
+					{ 'roles.administrator': { $exists: true } },
+					{ 'roles.doctor': { $in: organizationIds } },
+					{ 'profile.organizationId': { $in: organizationIds } }
+				]
+			});
+		}
 
 		// do not use cache
 		return this._db.find(query, options);

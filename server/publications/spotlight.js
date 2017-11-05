@@ -27,7 +27,9 @@ Meteor.methods({
 			fields: {
 				username: 1,
 				name: 1,
-				status: 1
+				status: 1,
+				// [IAN] 11/3/2017 add messaging roles as a return value
+				messagingRoles: 1
 			},
 			sort: {}
 		};
@@ -39,7 +41,8 @@ Meteor.methods({
 
 		if (RocketChat.authz.hasPermission(userId, 'view-outside-room')) {
 			if (type.users === true && RocketChat.authz.hasPermission(userId, 'view-d-room')) {
-				result.users = RocketChat.models.Users.findByActiveUsersExcept(text, usernames, userOptions).fetch();
+				// [IAN] 11/3/2017 pass userId for scoping
+				result.users = RocketChat.models.Users.findByActiveUsersExcept(userId, text, usernames, userOptions).fetch();
 			}
 
 			if (type.rooms === true && RocketChat.authz.hasPermission(userId, 'view-c-room')) {
