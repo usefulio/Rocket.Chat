@@ -14,7 +14,11 @@ Template.sideNav.helpers({
 	},
 
 	roomType() {
-		return RocketChat.roomTypes.getTypes();
+		// [IAN] 11/3/2017 only show favorited and private rooms
+		// return RocketChat.roomTypes.getTypes();
+		return _.reject(RocketChat.roomTypes.getTypes(), (type) => {
+			return type.identifier === 'c' || type.identifier === 'p';
+		});
 	},
 
 	loggedInUser() {
