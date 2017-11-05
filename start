@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export MONGO_URL=mongodb://localhost:3001/dev;
+meteor npm i;
+meteor --port 7000;
