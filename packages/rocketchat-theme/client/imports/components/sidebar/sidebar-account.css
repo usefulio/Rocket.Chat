@@ -22,6 +22,9 @@
 
 	transition: background-color 0.3s;
 
+	&.isMobile {
+		display: none;
+	}
 	&.active:hover {
 		cursor: pointer;
 

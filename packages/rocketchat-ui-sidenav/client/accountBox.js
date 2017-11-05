@@ -32,6 +32,10 @@ Template.accountBox.helpers({
 		if (Meteor.userId() == null && RocketChat.settings.get('Accounts_AllowAnonymousRead')) {
 			return 'disabled';
 		}
+	},
+
+	isMobile() {
+		return Session.get('isMobile');
 	}
 });
 
