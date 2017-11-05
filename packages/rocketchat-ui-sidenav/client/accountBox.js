@@ -34,8 +34,8 @@ Template.accountBox.helpers({
 		}
 	},
 
-	isMobile() {
-		return Session.get('isMobile');
+	isEmbedded() {
+		return Session.get('isEmbedded');
 	}
 });
 

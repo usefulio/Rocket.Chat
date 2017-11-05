@@ -22,7 +22,7 @@
 
 	transition: background-color 0.3s;
 
-	&.isMobile {
+	&.isEmbedded {
 		display: none;
 	}
 	&.active:hover {
