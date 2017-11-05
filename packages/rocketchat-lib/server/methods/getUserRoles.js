@@ -11,7 +11,8 @@ Meteor.methods({
 			},
 			fields: {
 				username: 1,
-				roles: 1
+				roles: 1,
+				messagingRoles: 1 // [IAN] 11/3/2017 coexist with OH roles
 			}
 		};
 

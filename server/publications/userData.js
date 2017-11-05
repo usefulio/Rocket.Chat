@@ -15,6 +15,7 @@ Meteor.publish('userData', function() {
 			language: 1,
 			settings: 1,
 			roles: 1,
+			messagingRoles: 1, // [IAN] 11/3/2017 coexist with OH roles
 			active: 1,
 			defaultRoom: 1,
 			customFields: 1,
